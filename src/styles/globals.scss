@@ -1,0 +1,26 @@
+main {
+  margin: 0 auto;
+  max-width: 1200px;
+  nav ul {
+    display: flex;
+    gap: 3rem;
+    li a {
+      text-decoration: none;
+    }
+  }
+
+  .cocktails {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+    article {
+
+      img {
+        display: block;
+        width: 200px;
+        height: auto;
+      }
+    }
+  }
+}
