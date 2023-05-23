@@ -19,7 +19,7 @@ const Friends = ({ friends, friends_has_hobbies, hobbies }) => {
 
   return (
     <div>
-      <h1>Data from MySQL</h1>
+      <h1>Data from MySQL v2.0</h1>
       <ul>
         {friends.map(({ id, name, age }) => (
           <details style={{ marginBottom: '15px' }} key={id}>
