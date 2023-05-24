@@ -24,7 +24,10 @@ const Layout = ({ children }) => {
             <Link href="/isr">Incremential Static Generation</Link>
           </li>
           <li style={{ fontSize: '20px' }}>
-            <Link href="/friends">Knex Friends</Link>
+            <Link href="/friends">Knex Friends & Email</Link>
+          </li>
+          <li style={{ fontSize: '20px' }}>
+            <Link href="/images">Unsplash Images</Link>
           </li>
         </ul>
       </nav>
