@@ -1,0 +1,21 @@
+.btn {
+  background-color: purple;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 10px;
+  font-size: 18px;
+  margin-top: 5px;
+  cursor: pointer;
+  &.active {
+    color: purple;
+    background-color: orange;
+  }
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  &.secondary{
+    background-color: orangered;
+    border: 2px solid yellowgreen;
+  }
+}

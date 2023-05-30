@@ -1,89 +1,129 @@
-import db from '@/db';
-import { useState } from 'react';
+import db from "@/db";
+import { useState } from "react";
+import { nest } from "@/helpers";
 
-const Friends = ({ friends, friends_has_hobbies, hobbies }) => {
+
+const Friends = ({ friends }) => {
   const [input, setInput] = useState("");
   const [area, setArea] = useState("");
+  // const { locale } = useRouter();
   const submitHandler = async (e) => {
     e.preventDefault();
-    await fetch('/api/mail', {
-      method: 'POST',
+    await fetch("/api/mail", {
+      method: "POST",
       body: JSON.stringify({
         input: input,
         message: area,
       }),
     });
-    setInput('');
-    setArea('');
+    setInput("");
+    setArea("");
   };
-
   return (
     <div>
-      <h1>Data from MySQL v2.1</h1>
-      <ul>
-        {friends.map(({ id, name, age }) => (
-          <details style={{ marginBottom: '15px' }} key={id}>
-            <summary style={{ marginBottom: '10px' }}>
+      <h1>Data from mysql 2.0</h1>
+      <div>
+        {friends.map(({ id, name, age, hobbies }) => (
+          <details key={id}>
+            <summary>
               {name} - {age}
             </summary>
-            {friends_has_hobbies
-              .filter(({ friends_id }) => friends_id === id)
-              .map(({ hobbies_id }) => {
-                const hobby = hobbies.find(({ id }) => id === hobbies_id);
-
-                return (
-                  <li style={{ marginLeft: '30px' }} key={hobbies_id}>
-                    {hobby && hobby.hobby} - {hobby.id}
-                  </li>
-                );
-              })}
+            <ul>
+              {hobbies.map(({ id, name }) => (
+                <li key={id}>{name}</li>
+              ))}
+            </ul>
           </details>
         ))}
-      </ul>
-      <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <form
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            width: '25%',
-            gap: '20px',
-          }}
-          onSubmit={submitHandler}
-        >
+      </div>
+      <div style={{display: "flex", flexDirection: "column", marginLeft: "auto"}}>
+        <h1>Mailform using embedded nextjs api</h1>
+        <form action="" onSubmit={submitHandler}>
           <input
             type="text"
             name="subject"
             value={input}
             onChange={(e) => setInput(e.target.value)}
           />{" "}
+          <br />
           <textarea
             name="message"
-            value={area}
-            cols={30}
-            rows={10}
             onChange={(e) => setArea(e.target.value)}
-          ></textarea>
-          <input type="submit" value="Send Mail" />
+            value={area}></textarea>{" "}
+          <br />
+          <input type="submit" value="sendmail" />
         </form>
       </div>
     </div>
   );
 };
 
+
 export default Friends;
 
-export async function getStaticProps() {
-  const friends = await db.select('id', 'name', 'age').from('friends');
-  const hobbies = await db.select('id', 'hobby').from('hobbies');
-  const friends_has_hobbies = await db
-    .select('friends_id', 'hobbies_id')
-    .from('friends_has_hobbies');
+export async function getStaticProps({ locale }) {
+  const friendsData = await db("friends_has_hobbies")
+    .join("friends", "friends.id", "friends_has_hobbies.friends_id")
+    .join("hobbies", "hobbies.id", "friends_has_hobbies.hobbies_id")
+    .select(
+      "friends.id",
+      "friends.name",
+      "friends.age",
+      "friends.image",
+      db.raw(
+        `COALESCE(NULLIF(hobbies.hobby_${locale}, ''),  hobby_nl) AS hobby`
+      ),
+      "hobbies.id AS hobbyId"
+    );
+
+  const friendsDefinition = [
+    {
+      id: { column: "id", type: "NUMBER" },
+      name: "name",
+      age: { column: "age", type: "NUMBER" },
+      image: "image",
+      hobbies: [
+        {
+          id: { column: "hobbyId", type: "NUMBER" },
+          name: "hobby",
+        },
+      ],
+    },
+  ];
+  // console.log(friendsData);
+  const friends = nest(friendsData, friendsDefinition);
+  // console.log(friends);
+
+  // const friends = (await db.select("*").from("friends"));
+  // const friendsWithHobbies = await Promise.all(
+  //   friends.map(async (f) => ({
+  //     ...f,
+  //     hobbies: await db("friends_has_hobbies")
+  //       .join("hobbies", "hobbies.id", "friends_has_hobbies.hobbies_id")
+  //       .select("hobbies.hobby", "hobbies.id")
+  //       .where("friends_has_hobbies.friends_id", f.id),
+  //   }))
+  // );
+
+  // const friends = await db
+  // .select(
+  //   'f.id',
+  //   'f.name',
+  //   'f.age',
+  //   db.raw(
+  //     'JSON_ARRAYAGG(JSON_OBJECT("id",h.id, "hobby", h.hobby)) as hobbies'
+  //   )
+  // )
+  // .from('friends as f')
+  // .leftJoin('friends_has_hobbies as fh', 'f.id', '=', 'fh.friends_id')
+  // .leftJoin('hobbies as h', 'h.id', '=', 'fh.hobbies_id')
+  // .groupBy('f.id');
+
+  // console.log(friendsWithHobbies);
 
   return {
     props: {
       friends,
-      friends_has_hobbies,
-      hobbies,
     },
     revalidate: 60,
   };

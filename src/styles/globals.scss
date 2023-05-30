@@ -8,6 +8,24 @@ main {
       text-decoration: none;
     }
   }
+  ol {
+    display: flex;
+    gap: 2rem;
+    list-style-type: none;
+    li {
+      a {
+        padding: 20px;
+        height: 10px;
+        background-color: orange;
+        border-radius: 5px;
+        text-decoration: none;
+        color: black;
+        &.active {
+          background-color: green;
+        }
+      }
+    }
+  }
 
   .cocktails {
     display: flex;

@@ -1,6 +1,9 @@
 import Link from 'next/link';
+import { useRouter } from "next/router";
+
 
 const Layout = ({ children }) => {
+  const { locale, locales, asPath } = useRouter();
   return (
     <main>
       <nav>
@@ -29,8 +32,23 @@ const Layout = ({ children }) => {
           <li style={{ fontSize: '20px' }}>
             <Link href="/images">Unsplash Images</Link>
           </li>
+          <li style={{ fontSize: '20px' }}>
+            <Link href="/translation">CTA Translation</Link>
+          </li>
         </ul>
       </nav>
+      <ol>
+        {locales.map((l) => (
+          <li key={l}>
+            <Link
+              className={locale === l ? "active" : ""}
+              href={asPath}
+              locale={l}>
+              {l}
+            </Link>
+          </li>
+        ))}
+      </ol>
       {children}
     </main>
   );
